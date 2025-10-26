@@ -1,0 +1,20 @@
+# config.yaml
+camera:
+  rtsp_url: "video.mp4"     # simular con un video local (si no tienes cámara)
+detection:
+  min_area: 2000
+  cooldown_seconds: 10
+  sensitivity: 25
+hardware:
+  led_red_pin: 17
+  led_green_pin: 27
+  buzzer_pin: 22
+telegram:
+  token: "AQUI_VA_TU_TOKEN_DEL_BOT"
+  chat_id: "AQUI_TU_CHAT_ID"
+schedule:
+  alarm_enabled: true
+  start_time: "20:00"
+  end_time: "06:00"
+database:
+  path: "events.db"

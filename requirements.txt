@@ -1,0 +1,8 @@
+flask
+opencv-python-headless
+sqlalchemy
+pyyaml
+python-telegram-bot==20.3
+requests
+gpiozero
+# RPi.GPIO
