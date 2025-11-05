@@ -14,8 +14,7 @@ db = get_session(config["database"]["path"])
 
 # ----------- VIDEO STREAM -----------
 # Fuente de video: 0 para cámara local, o "video.mp4" para archivo
-video_source = cv2.VideoCapture(0)
-
+video_source = cv2.VideoCapture("rtsp://admin:QEBRYO@192.168.1.10:554/")
 
 def generar_frames():
     """Genera frames JPEG continuos para enviar al navegador."""
@@ -75,11 +74,4 @@ def estado():
 
 
 if __name__ == "__main__":
-    try:
-        app.run(debug=True)
-    finally:
-        # liberar la cámara si el servidor se cierra
-        video_source.release()
-        print("✅ Cámara liberada correctamente.")
-
- 
+    app.run(debug=True)
