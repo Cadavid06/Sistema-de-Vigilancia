@@ -1,6 +1,6 @@
 # config.yaml
 camera:
-  rtsp_url: "rtsp://admin:QEBRYO@192.168.1.10:554/"     # simular con un video local (si no tienes cámara)
+  rtsp_url: "rtsp://admin:QEBRYO@192.168.1.10:554/"
 detection:
   min_area: 2000
   cooldown_seconds: 10
