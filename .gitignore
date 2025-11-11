@@ -15,3 +15,7 @@ events.db
 
 # Archivos de VS Code
 .vscode/
+.idea/
+
+.venv/
+.env

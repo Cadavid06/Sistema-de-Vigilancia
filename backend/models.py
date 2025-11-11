@@ -1,24 +1,18 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import datetime
+from datetime import datetime
 
 Base = declarative_base()
 
-
 class Event(Base):
-    __tablename__ = "events"
+    __tablename__ = 'events'
     id = Column(Integer, primary_key=True)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
-    event_type = Column(String)
-    info = Column(String)
+    event_type = Column(String(50), nullable=False)
+    info = Column(Text, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
 
-
-# Función modificada para DEVOLVER el SessionMaker, no una sesión activa
-def get_session_maker(db_path):
-    engine = create_engine(
-        f"sqlite:///{db_path}", connect_args={"check_same_thread": False}
-    )
+def get_session_maker(db_path: str):
+    engine = create_engine(f"sqlite:///{db_path}")
     Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    return Session  # Devolvemos la CLASE SessionMaker
+    return sessionmaker(bind=engine)

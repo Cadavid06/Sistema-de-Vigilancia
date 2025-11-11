@@ -1,57 +1,233 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <title>SVP - Sistema de Vigilancia Preventiva</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet">
-    </head>
-    <body class="p-3">
-        <div class="container">
-            <h1 class="mb-3 text-center">Sistema de Vigilancia Preventiva</h1>
-            <div class="text-center mb-4">
-                <h3>Vista de cámara (simulada)</h3>
-                <img src="{{ url_for('video_feed') }}" class="border rounded"
-                    width="640" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVP - Sistema de Vigilancia Preventiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'control-bg': '#0a0e1a',
+                        'control-panel': '#111827',
+                        'control-border': '#1f2937',
+                        'control-accent': '#1e40af',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-control-bg text-gray-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Sistema de Vigilancia Preventiva</h1>
+            </div>
+            <p class="text-gray-400 text-sm">Control y monitoreo en tiempo real</p>
+        </header>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Video Feed Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-control-panel rounded-xl border border-control-border overflow-hidden">
+                    <div class="p-4 border-b border-control-border flex items-center justify-between">
+                        <h2 class="text-xl font-semibold flex items-center gap-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            Vista de Cámara en Vivo
+                        </h2>
+                        <span class="text-xs text-gray-400 bg-control-bg px-3 py-1 rounded-full">CAM-01</span>
+                    </div>
+                    <div class="aspect-video bg-black flex items-center justify-center relative">
+                        <!-- Using Flask url_for syntax for video feed -->
+                        <img id="videoFeed" src="{{ url_for('video_feed') }}" class="w-full h-full object-contain" alt="Video Feed">
+                        <div class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded text-xs text-white">
+                            <span id="timestamp">--:--:--</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="text-center mb-4">
-                <button class="btn btn-danger me-2" onclick="activar()">Activar
-                    alarma</button>
-                <button class="btn btn-success"
-                    onclick="desactivar()">Desactivar alarma</button>
-                <p id="estado" class="mt-3 text-muted"></p>
-            </div>
+            <!-- Control Panel -->
+            <div class="space-y-6">
+                <!-- Alarm Controls -->
+                <div class="bg-control-panel rounded-xl border border-control-border p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-white">Control de Alarma</h3>
+                    
+                    <div id="statusIndicator" class="mb-6 p-4 rounded-lg bg-control-bg border border-control-border">
+                        <div class="flex items-center gap-3">
+                            <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-500"></div>
+                            <div>
+                                <p class="text-xs text-gray-400">Estado Actual</p>
+                                <p id="statusText" class="font-semibold text-gray-300">Desconocido</p>
+                            </div>
+                        </div>
+                    </div>
 
-            <h3>Eventos recientes</h3>
-            <ul class="list-group">
-                {% for e in events %}
-                <li class="list-group-item">
-                    <strong>{{ e.event_type }}</strong> — {{
-                    e.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}
-                    <br><small>{{ e.info }}</small>
-                </li>
-                {% else %}
-                <li class="list-group-item text-muted">No hay eventos aún</li>
-                {% endfor %}
-            </ul>
+                    <div class="space-y-3">
+                        <button onclick="activar()" 
+                                class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            Activar Alarma
+                        </button>
+                        
+                        <button onclick="desactivar()" 
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Desactivar Alarma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="bg-control-panel rounded-xl border border-control-border p-6">
+                    <h3 class="text-sm font-semibold mb-3 text-gray-400 uppercase tracking-wide">Estadísticas</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Eventos hoy</span>
+                            <span class="text-white font-semibold" id="eventCount">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Última actividad</span>
+                            <span class="text-white font-semibold" id="lastActivity">--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <script>
-    async function activar() {
-      const res = await fetch('/api/alarma/activar', { method: 'POST' });
-      const data = await res.json();
-      document.getElementById('estado').innerText = 'Alarma: ' + data.estado;
-      location.reload();
-    }
+        <!-- Events Log -->
+        <div class="mt-6 bg-control-panel rounded-xl border border-control-border">
+            <div class="p-4 border-b border-control-border">
+                <h3 class="text-xl font-semibold text-white">Registro de Eventos</h3>
+            </div>
+            <div class="p-4">
+                <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        <p>No hay eventos registrados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    async function desactivar() {
-      const res = await fetch('/api/alarma/desactivar', { method: 'POST' });
-      const data = await res.json();
-      document.getElementById('estado').innerText = 'Alarma: ' + data.estado;
-      location.reload();
-    }
-  </script>
-    </body>
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('es-ES');
+            const tsElement = document.getElementById('timestamp');
+            if (tsElement) tsElement.textContent = timestamp;
+        }
+        setInterval(updateTimestamp, 1000);
+        updateTimestamp();
+
+        // Update status display
+        function updateStatus(estado) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            if (estado === 'activada') {
+                statusDot.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';
+                statusText.textContent = 'ALARMA ACTIVADA';
+                statusText.className = 'font-semibold text-red-500';
+            } else if (estado === 'desactivada') {
+                statusDot.className = 'w-3 h-3 rounded-full bg-green-500';
+                statusText.textContent = 'Sistema Normal';
+                statusText.className = 'font-semibold text-green-500';
+            }
+        }
+
+        // Add event to log
+        function addEventToLog(eventType, info) {
+            const eventsList = document.getElementById('eventsList');
+            if (!eventsList) {
+                console.warn("⚠️ No se encontró el contenedor #eventsList.");
+                return;
+            }
+
+            const timestamp = new Date().toLocaleString('es-ES');
+            const eventItem = document.createElement('div');
+            eventItem.className = 'bg-control-bg p-3 rounded-lg border border-control-border hover:border-blue-500/50 transition-colors';
+            eventItem.innerHTML = `
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <p class="font-semibold text-white text-sm">${eventType}</p>
+                        <p class="text-xs text-gray-400 mt-1">${info}</p>
+                    </div>
+                    <span class="text-xs text-gray-500">${timestamp}</span>
+                </div>
+            `;
+
+            // ✅ Usamos firstElementChild en lugar de firstChild (ignora nodos de texto)
+            const firstElement = eventsList.firstElementChild;
+            if (firstElement && firstElement.classList.contains('text-center')) {
+                eventsList.innerHTML = '';
+            }
+
+            // Insertar el nuevo evento al inicio
+            eventsList.insertBefore(eventItem, eventsList.firstElementChild);
+
+            // ✅ Actualizar contador de eventos de forma segura
+            const eventCount = document.getElementById('eventCount');
+            if (eventCount) {
+                const currentCount = parseInt(eventCount.textContent || 0);
+                eventCount.textContent = currentCount + 1;
+            }
+
+            // ✅ Actualizar hora de última actividad
+            const lastActivity = document.getElementById('lastActivity');
+            if (lastActivity) {
+                lastActivity.textContent = new Date().toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // Activate alarm
+        async function activar() {
+            try {
+                const res = await fetch('/api/alarma/activar', { method: 'POST' });
+                const data = await res.json();
+                updateStatus(data.estado);
+                addEventToLog('Alarma Activada', 'El sistema de alarma ha sido activado manualmente');
+            } catch (error) {
+                console.error('Error al activar alarma:', error);
+                addEventToLog('Error', 'No se pudo activar la alarma');
+            }
+        }
+
+        // Deactivate alarm
+        async function desactivar() {
+            try {
+                const res = await fetch('/api/alarma/desactivar', { method: 'POST' });
+                const data = await res.json();
+                updateStatus(data.estado);
+                updateStatus('desactivada');
+                addEventToLog('Alarma Desactivada', 'El sistema de alarma ha sido desactivado');
+            } catch (error) {
+                console.error('Error al desactivar alarma:', error);
+                addEventToLog('Error', 'No se pudo desactivar la alarma');
+            }
+        }
+
+        // Initialize with default state
+        updateStatus('desactivada');
+    </script>
+</body>
 </html>
