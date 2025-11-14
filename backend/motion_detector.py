@@ -1,6 +1,7 @@
 import cv2
 import time
 import threading
+from video_recorder import VideoRecorder
 
 class MotionDetector:
     def __init__(self, rtsp_url: str, config: dict = None, is_alarm_enabled_func=None):
@@ -12,6 +13,7 @@ class MotionDetector:
         self.running = True
         self.alarm_triggered = False  # Alarma activada (LED parpadeando)
         self.led_blink_thread = None
+        self.video_recorder = VideoRecorder()
         self.thread = threading.Thread(target=self._capture_frames, daemon=True)
         self.thread.start()
 
@@ -41,7 +43,7 @@ class MotionDetector:
         apagar_buzzer()
 
     def _capture_frames(self):
-        # 📖 Leer configuración
+        # Leer configuración
         cam_config = self.config.get("camera", {})
         det_config = self.config.get("detection", {})
         hw_config = self.config.get("hardware", {})
@@ -53,7 +55,7 @@ class MotionDetector:
         max_reconnect_attempts = cam_config.get("max_reconnect_attempts", 5)
         transport = cam_config.get("transport", "tcp")
 
-        # 🌐 Configurar transporte RTSP (TCP más estable que UDP)
+        # Configurar transporte RTSP (TCP más estable que UDP)
         import os
         if transport == "tcp":
             os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp|rtsp_flags;prefer_tcp"
@@ -73,7 +75,7 @@ class MotionDetector:
 
         cap = cv2.VideoCapture(self.rtsp_url, cv2.CAP_FFMPEG)
 
-        # 🚀 OPTIMIZACIONES DE CAPTURA
+        # OPTIMIZACIONES DE CAPTURA
         cap.set(cv2.CAP_PROP_BUFFERSIZE, buffer_size)
         cap.set(cv2.CAP_PROP_FPS, fps)
 
@@ -81,7 +83,7 @@ class MotionDetector:
             print("❌ Error: No se pudo abrir el stream de la cámara.")
             return
 
-        # 🎯 Background Subtractor con parámetros configurables
+        # Background Subtractor con parámetros configurables
         fgbg = cv2.createBackgroundSubtractorMOG2(
             history=bg_history,
             varThreshold=sensitivity,
@@ -94,8 +96,8 @@ class MotionDetector:
         reconnect_attempts = 0
 
         print(
-            f"📹 Cámara configurada: {fps} FPS, detección cada {motion_skip_frames + 1} frames, área mínima {min_area}px")
-        print(f"🔔 Buzzer: {buzzer_duration}s por detección | Cooldown Telegram: {cooldown}s")
+            f" Cámara configurada: {fps} FPS, detección cada {motion_skip_frames + 1} frames, área mínima {min_area}px")
+        print(f" Buzzer: {buzzer_duration}s por detección | Cooldown Telegram: {cooldown}s")
 
         while self.running:
             ret, frame = cap.read()
@@ -118,7 +120,7 @@ class MotionDetector:
 
             reconnect_attempts = 0
 
-            # 📉 REDUCIR RESOLUCIÓN para procesamiento
+            # REDUCIR RESOLUCIÓN para procesamiento
             height, width = frame.shape[:2]
             if width > 640:
                 scale = 640 / width
@@ -127,7 +129,9 @@ class MotionDetector:
             else:
                 display_frame = frame.copy()
 
-            # 🎯 DETECTAR MOVIMIENTO SOLO CADA N FRAMES
+            self.video_recorder.add_frame(display_frame)
+
+            # DETECTAR MOVIMIENTO SOLO CADA N FRAMES
             motion = False
             if frame_count % (motion_skip_frames + 1) == 0:
                 fgmask = fgbg.apply(frame)
@@ -208,27 +212,39 @@ class MotionDetector:
 
                     threading.Thread(target=save_event, daemon=True).start()
 
-                    # 📲 Enviar notificación Telegram
+                    # Grabar video y enviar notificación Telegram
                     telegram_config = self.config.get("telegram", {})
                     if telegram_config.get("enabled", False):
-                        try:
-                            from telegram_notifier import send_motion_alert
-                            threading.Thread(
-                                target=send_motion_alert,
-                                args=(telegram_config,),
-                                daemon=True
-                            ).start()
-                            print("📱 Notificación de Telegram enviada")
-                        except ImportError:
-                            pass
+                        def send_alert_with_video():
+                            try:
+                                # Grabar 5 segundos de video
+                                video_path = self.video_recorder.record_motion_video(duration=5)
+
+                                # Enviar notificación con video
+                                from telegram_notifier import send_motion_alert
+                                send_motion_alert(telegram_config, video_path)
+
+                                # Limpiar video temporal después de 5 minutos
+                                if video_path and os.path.exists(video_path):
+                                    time.sleep(1800)  # 30 minutos
+                                    try:
+                                        os.remove(video_path)
+                                        print(f"🗑️ Video temporal eliminado: {video_path}")
+                                    except:
+                                        pass
+
+                            except Exception as e:
+                                print(f"❌ Error en alerta con video: {e}")
+
+                        threading.Thread(target=send_alert_with_video, daemon=True).start()
 
             elif motion and not self.is_alarm_enabled():
                 # Alarma desactivada pero hay movimiento
                 if current_time - last_motion_print > motion_print_cooldown:
-                    print("👀 Movimiento detectado, pero alarma desactivada.")
+                    print(" Movimiento detectado, pero alarma desactivada.")
                     last_motion_print = current_time
 
-            # 🖼️ Actualizar frame para streaming
+            # Actualizar frame para streaming
             with self.lock:
                 self.frame = display_frame.copy()
 

@@ -22,16 +22,36 @@
 </head>
 <body class="bg-control-bg text-gray-100 min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <header class="mb-8 text-center">
-            <div class="flex items-center justify-center gap-3 mb-2">
-                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                <h1 class="text-3xl md:text-4xl font-bold text-white">Sistema de Vigilancia Preventiva</h1>
+        <!-- Header con Usuario -->
+        <header class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-white">Sistema de Vigilancia Preventiva</h1>
+                        <p class="text-gray-400 text-sm">Control y monitoreo en tiempo real</p>
+                    </div>
+                </div>
+
+                <!-- User Info -->
+                {% if user %}
+                <div class="flex items-center gap-3 bg-control-panel px-4 py-2 rounded-lg border border-control-border">
+                    <img src="{{ user.picture }}" alt="{{ user.name }}" class="w-10 h-10 rounded-full border-2 border-blue-500">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-white">{{ user.name }}</p>
+                        <p class="text-xs text-gray-400">{{ user.email }}</p>
+                    </div>
+                    <a href="/logout" class="ml-2 p-2 hover:bg-red-600/20 rounded-lg transition-colors group" title="Cerrar sesión">
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                    </a>
+                </div>
+                {% endif %}
             </div>
-            <p class="text-gray-400 text-sm">Control y monitoreo en tiempo real</p>
         </header>
 
         <div class="grid lg:grid-cols-3 gap-6">
@@ -46,7 +66,6 @@
                         <span class="text-xs text-gray-400 bg-control-bg px-3 py-1 rounded-full">CAM-01</span>
                     </div>
                     <div class="aspect-video bg-black flex items-center justify-center relative">
-                        <!-- Using Flask url_for syntax for video feed -->
                         <img id="videoFeed" src="{{ url_for('video_feed') }}" class="w-full h-full object-contain" alt="Video Feed">
                         <div class="absolute bottom-4 left-4 bg-black/70 px-3 py-1 rounded text-xs text-white">
                             <span id="timestamp">--:--:--</span>
@@ -60,7 +79,7 @@
                 <!-- Alarm Controls -->
                 <div class="bg-control-panel rounded-xl border border-control-border p-6">
                     <h3 class="text-lg font-semibold mb-4 text-white">Control de Alarma</h3>
-                    
+
                     <div id="statusIndicator" class="mb-6 p-4 rounded-lg bg-control-bg border border-control-border">
                         <div class="flex items-center gap-3">
                             <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-500"></div>
@@ -72,15 +91,15 @@
                     </div>
 
                     <div class="space-y-3">
-                        <button onclick="activar()" 
+                        <button onclick="activar()"
                                 class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                             Activar Alarma
                         </button>
-                        
-                        <button onclick="desactivar()" 
+
+                        <button onclick="desactivar()"
                                 class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -96,14 +115,32 @@
                     <div class="space-y-2">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Eventos hoy</span>
-                            <span class="text-white font-semibold" id="eventCount">0</span>
+                            <span class="text-white font-semibold" id="eventCount">{{ events|length if events else 0 }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Última actividad</span>
-                            <span class="text-white font-semibold" id="lastActivity">--:--</span>
+                            <span class="text-white font-semibold" id="lastActivity">
+                                {% if events and events|length > 0 %}
+                                    {{ events[0].timestamp.strftime('%H:%M') }}
+                                {% else %}
+                                    --:--
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
+
+                <!-- User Session Info -->
+                {% if user %}
+                <div class="bg-control-panel rounded-xl border border-control-border p-6">
+                    <h3 class="text-sm font-semibold mb-3 text-gray-400 uppercase tracking-wide">Sesión Activa</h3>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs text-gray-400">Conectado como</span>
+                    </div>
+                    <p class="text-sm text-white mt-2 truncate">{{ user.email }}</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -114,12 +151,26 @@
             </div>
             <div class="p-4">
                 <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
+                    {% if events and events|length > 0 %}
+                        {% for event in events %}
+                        <div class="bg-control-bg p-3 rounded-lg border border-control-border hover:border-blue-500/50 transition-colors">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p class="font-semibold text-white text-sm">{{ event.event_type }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ event.info }}</p>
+                                </div>
+                                <span class="text-xs text-gray-500">{{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
                     <div class="text-center text-gray-500 py-8">
                         <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
                         <p>No hay eventos registrados</p>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -140,7 +191,7 @@
         function updateStatus(estado) {
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
-            
+
             if (estado === 'activada') {
                 statusDot.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';
                 statusText.textContent = 'ALARMA ACTIVADA';
@@ -155,10 +206,7 @@
         // Add event to log
         function addEventToLog(eventType, info) {
             const eventsList = document.getElementById('eventsList');
-            if (!eventsList) {
-                console.warn("⚠️ No se encontró el contenedor #eventsList.");
-                return;
-            }
+            if (!eventsList) return;
 
             const timestamp = new Date().toLocaleString('es-ES');
             const eventItem = document.createElement('div');
@@ -173,23 +221,19 @@
                 </div>
             `;
 
-            // ✅ Usamos firstElementChild en lugar de firstChild (ignora nodos de texto)
             const firstElement = eventsList.firstElementChild;
             if (firstElement && firstElement.classList.contains('text-center')) {
                 eventsList.innerHTML = '';
             }
 
-            // Insertar el nuevo evento al inicio
             eventsList.insertBefore(eventItem, eventsList.firstElementChild);
 
-            // ✅ Actualizar contador de eventos de forma segura
             const eventCount = document.getElementById('eventCount');
             if (eventCount) {
                 const currentCount = parseInt(eventCount.textContent || 0);
                 eventCount.textContent = currentCount + 1;
             }
 
-            // ✅ Actualizar hora de última actividad
             const lastActivity = document.getElementById('lastActivity');
             if (lastActivity) {
                 lastActivity.textContent = new Date().toLocaleTimeString('es-ES', {
@@ -218,7 +262,6 @@
                 const res = await fetch('/api/alarma/desactivar', { method: 'POST' });
                 const data = await res.json();
                 updateStatus(data.estado);
-                updateStatus('desactivada');
                 addEventToLog('Alarma Desactivada', 'El sistema de alarma ha sido desactivado');
             } catch (error) {
                 console.error('Error al desactivar alarma:', error);
