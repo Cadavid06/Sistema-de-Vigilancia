@@ -136,7 +136,6 @@ def desactivar_alarma():
     finally:
         db.close()
 
-
 @app.route("/api/alarma/estado", methods=["GET"])
 @login_required
 def estado_alarma():
