@@ -12,10 +12,10 @@ events.db
 # Configuración del sistema
 .DS_Store
 *.env
+.env
 
 # Archivos de VS Code
 .vscode/
 .idea/
 
 .venv/
-.env

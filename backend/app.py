@@ -4,7 +4,7 @@ from models import get_session_maker, Event
 from motion_detector import MotionDetector
 from gpio_control import encender_rojo, apagar_rojo, limpiar, encender_verde
 from auth import init_oauth, login_required, is_authorized_email, get_current_user
-import oauth_config
+from dotenv import load_dotenv
 
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
@@ -15,7 +15,10 @@ encender_verde()
 apagar_rojo()
 
 app = Flask(__name__)
-app.secret_key = oauth_config.SECRET_KEY
+
+load_dotenv()
+
+app.secret_key = os.getenv("SECRET_KEY")
 
 @app.after_request
 def add_no_cache_headers(response):
