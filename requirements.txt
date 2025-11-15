@@ -8,3 +8,4 @@ flask-login
 authlib
 requests
 Flask-Session
+dotenv

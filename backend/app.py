@@ -80,8 +80,8 @@ def login_page():
 @app.route("/google-login")
 def google_login():
     redirect_uri = url_for('authorize', _external=True)
-    response = google.authorize_redirect(redirect_uri)
-    return response
+    return google.authorize_redirect(redirect_uri)
+
 
 @app.route("/callback")
 def authorize():
