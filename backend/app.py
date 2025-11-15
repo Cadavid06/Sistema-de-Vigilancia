@@ -50,7 +50,6 @@ def google_login():
     redirect_uri = "http://localhost:5000/callback"
     return google.authorize_redirect(redirect_uri)
 
-
 @app.route("/callback")
 def authorize():
     """Callback de Google OAuth"""
