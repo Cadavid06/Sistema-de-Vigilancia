@@ -79,33 +79,50 @@
                 <!-- Alarm Controls -->
                 <div class="bg-control-panel rounded-xl border border-control-border p-6">
                     <h3 class="text-lg font-semibold mb-4 text-white">Control de Alarma</h3>
-
+                    
                     <div id="statusIndicator" class="mb-6 p-4 rounded-lg bg-control-bg border border-control-border">
                         <div class="flex items-center gap-3">
                             <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-500"></div>
                             <div>
                                 <p class="text-xs text-gray-400">Estado Actual</p>
                                 <p id="statusText" class="font-semibold text-gray-300">Desconocido</p>
+                                <p id="modeText" class="text-xs text-gray-400 mt-1">Modo: Manual</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <button onclick="activar()"
+                        <button onclick="activar()" 
                                 class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                             Activar Alarma
                         </button>
-
-                        <button onclick="desactivar()"
+                        
+                        <button onclick="desactivar()" 
                                 class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             Desactivar Alarma
                         </button>
+                        
+                        <button onclick="modoAutomatico()" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Modo Automático
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Schedule Info -->
+                <div class="bg-control-panel rounded-xl border border-control-border p-6">
+                    <h3 class="text-sm font-semibold mb-3 text-gray-400 uppercase tracking-wide">Próximas Programaciones</h3>
+                    <div id="scheduleList" class="space-y-2 text-sm">
+                        <p class="text-gray-500">Cargando...</p>
                     </div>
                 </div>
 
@@ -147,30 +164,90 @@
         <!-- Events Log -->
         <div class="mt-6 bg-control-panel rounded-xl border border-control-border">
             <div class="p-4 border-b border-control-border">
-                <h3 class="text-xl font-semibold text-white">Registro de Eventos</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-white">Registro de Eventos</h3>
+                    <button onclick="exportEvents()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Exportar CSV
+                    </button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <!-- Fecha inicio -->
+                    <div>
+                        <label class="text-xs text-gray-400 mb-1 block">Desde</label>
+                        <input type="date" id="startDate" 
+                            class="w-full bg-control-bg border border-control-border text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <!-- Fecha fin -->
+                    <div>
+                        <label class="text-xs text-gray-400 mb-1 block">Hasta</label>
+                        <input type="date" id="endDate" 
+                            class="w-full bg-control-bg border border-control-border text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <!-- Tipo de evento -->
+                    <div>
+                        <label class="text-xs text-gray-400 mb-1 block">Tipo</label>
+                        <select id="eventType" 
+                                class="w-full bg-control-bg border border-control-border text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                            <option value="all">Todos</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Búsqueda -->
+                    <div>
+                        <label class="text-xs text-gray-400 mb-1 block">Buscar</label>
+                        <input type="text" id="searchText" placeholder="Buscar eventos..." 
+                            class="w-full bg-control-bg border border-control-border text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="flex gap-2 mt-3">
+                    <button onclick="filterEvents()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition-colors">
+                        Filtrar
+                    </button>
+                    <button onclick="clearFilters()" 
+                            class="bg-gray-600 hover:bg-gray-700 text-white text-sm px-4 py-2 rounded transition-colors">
+                        Limpiar
+                    </button>
+                </div>
+                
+                <!-- Estadísticas rápidas -->
+                <div class="grid grid-cols-4 gap-3 mt-4 text-center">
+                    <div class="bg-control-bg p-3 rounded">
+                        <p class="text-2xl font-bold text-white" id="statsToday">0</p>
+                        <p class="text-xs text-gray-400">Hoy</p>
+                    </div>
+                    <div class="bg-control-bg p-3 rounded">
+                        <p class="text-2xl font-bold text-white" id="statsWeek">0</p>
+                        <p class="text-xs text-gray-400">Esta semana</p>
+                    </div>
+                    <div class="bg-control-bg p-3 rounded">
+                        <p class="text-2xl font-bold text-white" id="statsMonth">0</p>
+                        <p class="text-xs text-gray-400">Este mes</p>
+                    </div>
+                    <div class="bg-control-bg p-3 rounded">
+                        <p class="text-2xl font-bold text-white" id="statsTotal">0</p>
+                        <p class="text-xs text-gray-400">Total</p>
+                    </div>
+                </div>
             </div>
+            
             <div class="p-4">
-                <div id="eventsList" class="space-y-2 max-h-96 overflow-y-auto">
-                    {% if events and events|length > 0 %}
-                        {% for event in events %}
-                        <div class="bg-control-bg p-3 rounded-lg border border-control-border hover:border-blue-500/50 transition-colors">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <p class="font-semibold text-white text-sm">{{ event.event_type }}</p>
-                                    <p class="text-xs text-gray-400 mt-1">{{ event.info }}</p>
-                                </div>
-                                <span class="text-xs text-gray-500">{{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
+                <div id="eventsList" class="space-y-2 max-h-[500px] overflow-y-auto">
                     <div class="text-center text-gray-500 py-8">
                         <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
-                        <p>No hay eventos registrados</p>
+                        <p>Cargando eventos...</p>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -188,10 +265,11 @@
         updateTimestamp();
 
         // Update status display
-        function updateStatus(estado) {
+        function updateStatus(estado, manualMode) {
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
-
+            const modeText = document.getElementById('modeText');
+            
             if (estado === 'activada') {
                 statusDot.className = 'w-3 h-3 rounded-full bg-red-500 animate-pulse';
                 statusText.textContent = 'ALARMA ACTIVADA';
@@ -200,6 +278,11 @@
                 statusDot.className = 'w-3 h-3 rounded-full bg-green-500';
                 statusText.textContent = 'Sistema Normal';
                 statusText.className = 'font-semibold text-green-500';
+            }
+            
+            if (modeText && manualMode !== undefined) {
+                modeText.textContent = manualMode ? 'Modo: Manual' : 'Modo: Automático';
+                modeText.className = manualMode ? 'text-xs text-yellow-400 mt-1' : 'text-xs text-blue-400 mt-1';
             }
         }
 
@@ -248,7 +331,7 @@
             try {
                 const res = await fetch('/api/alarma/activar', { method: 'POST' });
                 const data = await res.json();
-                updateStatus(data.estado);
+                updateStatus(data.estado, data.manual_mode);
                 addEventToLog('Alarma Activada', 'El sistema de alarma ha sido activado manualmente');
             } catch (error) {
                 console.error('Error al activar alarma:', error);
@@ -261,13 +344,212 @@
             try {
                 const res = await fetch('/api/alarma/desactivar', { method: 'POST' });
                 const data = await res.json();
-                updateStatus(data.estado);
+                updateStatus(data.estado, data.manual_mode);
                 addEventToLog('Alarma Desactivada', 'El sistema de alarma ha sido desactivado');
             } catch (error) {
                 console.error('Error al desactivar alarma:', error);
                 addEventToLog('Error', 'No se pudo desactivar la alarma');
             }
         }
+
+        // Modo automático
+        async function modoAutomatico() {
+            try {
+                const res = await fetch('/api/alarma/auto', { method: 'POST' });
+                const data = await res.json();
+                updateStatus(data.estado === 'automatico' ? (data.alarm_enabled ? 'activada' : 'desactivada') : data.estado, data.manual_mode);
+                addEventToLog('Modo Automático', 'Control automático restaurado según programación');
+                loadSchedules();
+            } catch (error) {
+                console.error('Error al activar modo automático:', error);
+                addEventToLog('Error', 'No se pudo activar el modo automático');
+            }
+        }
+
+        // Load schedules
+        async function loadSchedules() {
+            try {
+                const res = await fetch('/api/schedules');
+                const data = await res.json();
+                const scheduleList = document.getElementById('scheduleList');
+                
+                if (!scheduleList) return;
+                
+                if (data.next_changes && data.next_changes.length > 0) {
+                    scheduleList.innerHTML = data.next_changes.map(change => `
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-400">${change.action === 'activar' ? '🔴' : '🟢'} ${change.name}</span>
+                            <span class="text-white font-semibold">${change.time}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    scheduleList.innerHTML = '<p class="text-gray-500 text-xs">No hay horarios programados</p>';
+                }
+            } catch (error) {
+                console.error('Error cargando horarios:', error);
+            }
+        }
+
+        // ========== SISTEMA DE FILTRADO DE EVENTOS ==========
+
+        // Cargar tipos de eventos
+        async function loadEventTypes() {
+            try {
+                const res = await fetch('/api/events/types');
+                const data = await res.json();
+                
+                const eventTypeSelect = document.getElementById('eventType');
+                if (!eventTypeSelect) return;
+                
+                // Limpiar opciones excepto "Todos"
+                eventTypeSelect.innerHTML = '<option value="all">Todos</option>';
+                
+                // Agregar tipos de eventos
+                data.types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    eventTypeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando tipos de eventos:', error);
+            }
+        }
+
+        // Cargar estadísticas
+        async function loadEventStats() {
+            try {
+                const res = await fetch('/api/events/stats');
+                const data = await res.json();
+                
+                document.getElementById('statsToday').textContent = data.today || 0;
+                document.getElementById('statsWeek').textContent = data.week || 0;
+                document.getElementById('statsMonth').textContent = data.month || 0;
+                document.getElementById('statsTotal').textContent = data.total || 0;
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        // Filtrar eventos
+        async function filterEvents() {
+            try {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const eventType = document.getElementById('eventType').value;
+                const searchText = document.getElementById('searchText').value;
+                
+                // Construir query params
+                const params = new URLSearchParams();
+                if (startDate) params.append('start_date', startDate);
+                if (endDate) params.append('end_date', endDate);
+                if (eventType && eventType !== 'all') params.append('event_type', eventType);
+                if (searchText) params.append('search', searchText);
+                params.append('limit', 100);
+                
+                const res = await fetch(`/api/events?${params.toString()}`);
+                const data = await res.json();
+                
+                displayEvents(data.events);
+                
+                // Mostrar mensaje si no hay resultados
+                if (data.events.length === 0) {
+                    const eventsList = document.getElementById('eventsList');
+                    eventsList.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p>No se encontraron eventos con los filtros aplicados</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error filtrando eventos:', error);
+            }
+        }
+
+        // Mostrar eventos en la lista
+        function displayEvents(events) {
+            const eventsList = document.getElementById('eventsList');
+            if (!eventsList) return;
+            
+            if (events.length === 0) return;
+            
+            eventsList.innerHTML = events.map(event => `
+                <div class="bg-control-bg p-3 rounded-lg border border-control-border hover:border-blue-500/50 transition-colors">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs px-2 py-1 rounded ${getEventTypeColor(event.event_type)}">
+                                    ${event.event_type}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">${event.info}</p>
+                        </div>
+                        <span class="text-xs text-gray-500">${event.timestamp}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Obtener color según tipo de evento
+        function getEventTypeColor(type) {
+            const colors = {
+                'alarma_activada': 'bg-red-600/20 text-red-400',
+                'alarma_desactivada': 'bg-green-600/20 text-green-400',
+                'movimiento_detectado': 'bg-yellow-600/20 text-yellow-400',
+                'default': 'bg-blue-600/20 text-blue-400'
+            };
+            return colors[type] || colors['default'];
+        }
+
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('eventType').value = 'all';
+            document.getElementById('searchText').value = '';
+            filterEvents();
+        }
+
+        // Exportar eventos a CSV
+        function exportEvents() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const eventType = document.getElementById('eventType').value;
+            
+            const params = new URLSearchParams();
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            if (eventType && eventType !== 'all') params.append('event_type', eventType);
+            
+            window.location.href = `/api/events/export?${params.toString()}`;
+        }
+
+        // Inicializar filtros al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEventTypes();
+            loadEventStats();
+            filterEvents();
+            
+            // Actualizar estadísticas cada 30 segundos
+            setInterval(loadEventStats, 30000);
+            
+            // Enter en búsqueda dispara filtro
+            const searchInput = document.getElementById('searchText');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        filterEvents();
+                    }
+                });
+            }
+        });
+
+        // Load schedules on page load
+        loadSchedules();
+        setInterval(loadSchedules, 60000); // Actualizar cada minuto
 
         // Initialize with default state
         updateStatus('desactivada');

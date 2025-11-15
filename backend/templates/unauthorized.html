@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso Denegado</title>
+    <title>Acceso Denegado - Sistema de Vigilancia</title>
     <style>
         * {
             margin: 0;
@@ -12,71 +12,162 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .error-container {
             background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 50px 45px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
             text-align: center;
-            max-width: 500px;
-            width: 90%;
+            max-width: 480px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .error-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            margin-bottom: 25px;
+            border: 3px solid #fca5a5;
         }
 
         h1 {
-            color: #d32f2f;
-            margin-bottom: 10px;
+            color: #1a202c;
+            margin-bottom: 15px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        p {
-            color: #666;
-            margin-bottom: 20px;
+        .description {
+            color: #4b5563;
+            margin-bottom: 30px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .email-box {
+            background: #f8fafc;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .email-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
         .email {
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 20px 0;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            color: #1e293b;
+            font-weight: 600;
+            word-break: break-all;
         }
 
-        a {
-            display: inline-block;
-            background: #667eea;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-decoration: none;
-            transition: all 0.3s;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            margin-top: 10px;
         }
 
-        a:hover {
-            background: #5568d3;
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 480px) {
+            .error-container {
+                padding: 40px 30px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <div class="error-icon">🚫</div>
+        <div class="error-icon">🔒</div>
+
         <h1>Acceso Denegado</h1>
-        <p>Tu correo electrónico no está autorizado para acceder a este sistema.</p>
-        <div class="email">{{ email }}</div>
-        <p>Contacta al administrador si crees que esto es un error.</p>
-        <a href="/login">Volver al login</a>
+        <p class="description">
+            Tu cuenta no tiene autorización para acceder a este sistema.
+        </p>
+
+        <div class="email-box">
+            <div class="email-label">Correo usado</div>
+            <div class="email">{{ email }}</div>
+        </div>
+
+        <a href="/login" class="btn">
+            <span>←</span>
+            <span>Volver al Inicio</span>
+        </a>
+
+        <div class="footer-note">
+            Contacta al administrador si necesitas acceso
+        </div>
     </div>
 </body>
 </html>
