@@ -36,16 +36,18 @@
                     </div>
                 </div>
 
-                <!-- User Info -->
+               <!-- User Info -->
                 {% if user %}
-                <div class="flex items-center gap-3 bg-control-panel px-4 py-2 rounded-lg border border-control-border">
-                    <img src="{{ user.picture }}" alt="{{ user.name }}" class="w-10 h-10 rounded-full border-2 border-blue-500">
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-white">{{ user.name }}</p>
-                        <p class="text-xs text-gray-400">{{ user.email }}</p>
+                <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 rounded-xl border border-blue-200">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow">
+                        {{ user.name[0].upper() if user.name else 'U' }}
                     </div>
-                    <a href="/logout" class="ml-2 p-2 hover:bg-red-600/20 rounded-lg transition-colors group" title="Cerrar sesión">
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-gray-900">{{ user.name }}</p>
+                        <p class="text-xs text-gray-600">{{ user.username }}</p>
+                    </div>
+                    <a href="/logout" class="ml-2 p-2 hover:bg-red-100 rounded-lg transition-colors group" title="Cerrar sesión">
+                        <svg class="w-5 h-5 text-gray-600 group-hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                     </a>
@@ -146,18 +148,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- User Session Info -->
-                {% if user %}
-                <div class="bg-control-panel rounded-xl border border-control-border p-6">
-                    <h3 class="text-sm font-semibold mb-3 text-gray-400 uppercase tracking-wide">Sesión Activa</h3>
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs text-gray-400">Conectado como</span>
-                    </div>
-                    <p class="text-sm text-white mt-2 truncate">{{ user.email }}</p>
-                </div>
-                {% endif %}
             </div>
         </div>
 

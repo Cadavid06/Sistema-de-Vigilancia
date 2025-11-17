@@ -3,9 +3,11 @@ import cv2, yaml, os, time
 from models import get_session_maker, Event
 from motion_detector import MotionDetector
 from gpio_control import encender_rojo, apagar_rojo, limpiar, encender_verde
-from auth import init_oauth, login_required, is_authorized_email, get_current_user
+from auth import login_required, get_current_user
 from dotenv import load_dotenv
 from scheduler import AlarmScheduler
+from models import get_session_maker, Event, User
+from datetime import datetime, timedelta
 
 with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
@@ -32,7 +34,6 @@ def add_no_cache_headers(response):
     return response
 
 
-oauth, google = init_oauth(app)
 SessionLocal = get_session_maker(config["database"]["path"])
 
 def is_alarm_active():
@@ -73,51 +74,53 @@ def auto_deactivate_alarm():
 # Inicializar programador
 scheduler = AlarmScheduler(config, auto_activate_alarm, auto_deactivate_alarm)
 
-@app.route("/login")
+
+@app.route("/login", methods=["GET", "POST"])
 def login_page():
-    return render_template("login.html")
+    """Página de login"""
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-@app.route("/google-login")
-def google_login():
-    redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect(redirect_uri)
+        db = SessionLocal()
+        try:
+            # Buscar usuario
+            user = db.query(User).filter(User.username == username).first()
 
+            if user and user.check_password(password):
+                if not user.is_active:
+                    return render_template("login.html", error="Usuario desactivado")
 
-@app.route("/callback")
-def authorize():
-    """Callback de Google OAuth"""
-    try:
-        token = google.authorize_access_token()
-        user_info = token.get('userinfo')
+                # Actualizar último login
+                user.last_login = datetime.utcnow()
+                db.commit()
 
-        if user_info:
-            email = user_info.get('email')
+                # Crear sesión
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session.permanent = True
 
-            # Verificar si el email está autorizado
-            if is_authorized_email(email):
-                session['user'] = {
-                    'email': email,
-                    'name': user_info.get('name'),
-                    'picture': user_info.get('picture')
-                }
-                session.permanent = True  # Sesión persistente
-                print(f"✅ Login exitoso: {email}")
+                print(f"✅ Login exitoso: {username}")
                 return redirect(url_for('index'))
             else:
-                print(f"❌ Acceso denegado: {email}")
-                return render_template("unauthorized.html", email=email)
+                print(f"❌ Login fallido: {username}")
+                return render_template("login.html", error="Usuario o contraseña incorrectos")
 
-        return redirect(url_for('login_page'))
+        except Exception as e:
+            print(f"❌ Error en login: {e}")
+            return render_template("login.html", error="Error en el sistema")
+        finally:
+            db.close()
 
-    except Exception as e:
-        print(f"❌ Error en autenticación: {e}")
-        return redirect(url_for('login_page'))
+    return render_template("login.html")
+
 
 @app.route("/logout")
 def logout():
-    email = session.get('user', {}).get('email', 'Usuario')
-    session.clear()  # 👈 esto borra TODO, incluido el state
-    print(f" Logout: {email}")
+    """Cerrar sesión"""
+    username = session.get('username', 'Usuario')
+    session.clear()
+    print(f"👋 Logout: {username}")
     return redirect(url_for('login_page'))
 
 @app.route("/")
@@ -125,7 +128,7 @@ def logout():
 def index():
     db = SessionLocal()
     events = db.query(Event).order_by(Event.timestamp.desc()).limit(10).all()
-    user = get_current_user()
+    user = get_current_user(db)
     db.close()
     return render_template("index.html", events=events, user=user)
 
@@ -137,7 +140,7 @@ def activar_alarma():
         config["schedule"]["alarm_enabled"] = True
         scheduler.set_manual_override(True)
         encender_rojo()
-        user = get_current_user()
+        user = get_current_user(db)
         print(f"🔴 Alarma ACTIVADA por {user.get('email')}")
         evento = Event(event_type="alarma_activada", info=f"activada por {user.get('email')}")
         db.add(evento)
@@ -159,7 +162,7 @@ def desactivar_alarma():
         scheduler.set_manual_override(True)
         detector.reset_alarm()
         apagar_rojo()
-        user = get_current_user()
+        user = get_current_user(db)
         print(f"🟢 Alarma DESACTIVADA por {user.get('email')}")
         evento = Event(event_type="alarma_desactivada", info=f"desactivada por {user.get('email')}")
         db.add(evento)
@@ -237,9 +240,10 @@ def video_feed():
 @login_required
 def modo_automatico():
     """Restaurar control automático según programación"""
+    db = SessionLocal()
     try:
         scheduler.set_manual_override(False)
-        user = get_current_user()
+        user = get_current_user(db)
         print(f"🤖 Modo automático restaurado por {user.get('email')}")
 
         # Verificar estado según programación
