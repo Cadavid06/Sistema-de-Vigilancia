@@ -1,7 +1,5 @@
 camera:
-  # 📹 EZVIZ H6c - Sub Stream (más estable para Raspberry Pi)
   rtsp_url: "rtsp://admin:QEBRYO@192.168.1.49:554/h264/ch1/sub/av_stream"
-  # Alternativas si no funciona:
   # rtsp_url: "rtsp://admin:QEBRYO@192.168.1.33:554/Streaming/Channels/102"
   # rtsp_url: "rtsp://admin:QEBRYO@192.168.1.33:554/h264/ch1/main/av_stream"
 
@@ -31,16 +29,16 @@ hardware:
   led_red_pin: 24
   led_green_pin: 23
   buzzer_pin: 22
-  buzzer_duration: 60  # Buzzer suena por 60 segundos por cada detección
-  led_blink_interval: 0.3  # Intervalo de parpadeo del LED rojo (0.3s = rápido)
+  buzzer_duration: 60
+  led_blink_interval: 0.3
 
 telegram:
   token: "8492390941:AAH1bGSJIL1nPTRiZjM-HNR-IB_HPJvDGhg"
   chat_id: ["1635363596", "6621116239"]
   enabled: true
-  send_voice: true      # Enviar mensajes de voz
-  send_video: true      # Enviar video
-  send_text: true       # Enviar mensaje de texto
+  send_voice: true
+  send_video: true
+  send_text: true
   video_duration: 5
 
 schedule:
@@ -49,13 +47,13 @@ schedule:
 
   schedules:
     - name: "Lunes a Viernes - Noche"
-      days: [0, 1, 2, 3, 4]  # Lunes a Viernes
+      days: [0, 1, 2, 3, 4]
       start_time: "22:00"
       end_time: "06:00"
       enabled: true
 
     - name: "Fin de Semana - Noche"
-      days: [5, 6]  # Sábado y Domingo
+      days: [5, 6]
       start_time: "23:00"
       end_time: "08:00"
       enabled: true
@@ -64,10 +62,10 @@ schedule:
       days: [0, 1, 2, 3, 4, 5, 6]
       start_time: "12:00"
       end_time: "14:00"
-      enabled: false  # Desactivado
+      enabled: false
 
     - name: "Prueba inmediata"
-      days: [ 0, 1, 2, 3, 4, 5, 6 ]  # Todos los días
+      days: [ 0, 1, 2, 3, 4, 5, 6 ]
       start_time: "17:26"
       end_time: "17:30"
       enabled: true
