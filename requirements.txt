@@ -3,7 +3,7 @@ opencv-python-headless==4.10.0.84
 # numpy==1.26.4
 PyYAML==6.0.1
 SQLAlchemy==1.4.49
-# RPi.GPIO==0.7.1
+RPi.GPIO==0.7.1
 flask-login
 authlib
 requests

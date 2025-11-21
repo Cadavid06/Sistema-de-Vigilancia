@@ -290,7 +290,9 @@ def get_events():
         end_date = request.args.get('end_date')
         event_type = request.args.get('event_type')
         search = request.args.get('search')
-        limit = request.args.get('limit', 50, type=int)
+        limit = request.args.get('limit', 15, type=int)
+
+        page = request.args.get
 
         # Query base
         query = db.query(Event)
